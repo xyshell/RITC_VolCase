@@ -1,0 +1,9 @@
+news_id,body,headline,period,tick,ticker
+7,The latest annualized volatility of RTM is 26%,Announcement 3,1,449,Week 4
+6,The annualized volatility of RTM is expected to increase to 24% ~ 29% at the start of Week 4,News 3,1,374,0
+5,The latest annualized volatility of RTM is 22%,Announcement 2,1,299,Week 3
+4,The annualized volatility of RTM is expected to decrease to 19% ~ 24% at the start of Week 3,News 2,1,224,0
+3,The latest annualized volatility of RTM is 25%,Announcement 1,1,149,Week 2
+2,The annualized volatility of RTM is expected to increase to 24% ~ 29% at the start of Week 2,News 1,1,74,0
+1,"The delta limit for this sub-heat is 15,000",Delta Limit,1,0,0
+0,The current risk free rate is 0%. RTM is an ETF that mimics one of the major indices in the simulated world and its current annualized volatility is 20%. This heat consists of 20 trading days.,Risk free rate and current annualized volatility of RTM,1,0,Week 1
