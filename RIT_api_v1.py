@@ -135,6 +135,10 @@ class RitClient():
     # Get Full Market Price
     def market_price(self):
         return self.securities()["last"]
+    
+    # Get Position
+    def position(self):
+        return self.market()['position']
 
     # Get Limit Book
     def book(self, ticker, line=20):
@@ -151,6 +155,7 @@ class RitClient():
     # Get Historic Price
     def history(self, ticker, reverse=True, period=None, limit=None):
         return self.securities_history(ticker, period, limit).sort_index(ascending=not reverse)
+
 
     # Market Operation Below
 

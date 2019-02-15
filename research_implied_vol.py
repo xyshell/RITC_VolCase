@@ -2,7 +2,7 @@ import pandas as pd
 import re
 from py_vollib.black_scholes.implied_volatility import implied_volatility
 
-hist_data = pd.read_csv('hist_data2.csv')
+hist_data = pd.read_csv('hist_data3.csv')
 hist_data = hist_data.sort_values(by='tick').set_index('tick')
 ava_ticker = list(hist_data.columns)
 call_list = [ticker for ticker in ava_ticker if 'C' in ticker]
@@ -41,4 +41,4 @@ for i in range(600):
 
     iv_df = iv_df.append(vol_dict, ignore_index=True)
     
-iv_df.to_csv('implied_volatility2.csv')
+iv_df.to_csv('implied_volatility3.csv')

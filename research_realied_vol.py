@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import ffn
 from py_vollib.black_scholes.implied_volatility import implied_volatility
 
-hist_data = pd.read_csv('hist_data2.csv')
+hist_data = pd.read_csv('hist_data3.csv')
 hist_data = hist_data.sort_values(by='tick').set_index('tick')
 
 timing_list = [150, 300, 450, 600]
