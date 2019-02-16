@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd 
-import matplotlib.pyplot as plt
 import ffn
 from py_vollib.black_scholes.implied_volatility import implied_volatility
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 hist_data = pd.read_csv('hist_data2.csv')
 hist_data = hist_data.sort_values(by='tick').set_index('tick')
