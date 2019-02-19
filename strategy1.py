@@ -73,7 +73,7 @@ while api.case_status() == True:
     # computation -- stats of implied vol
     hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.85)])
     plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.70)])
-    exculde_list = ['RTM45C',"RTM45P"]
+    exculde_list = ['RTM45C',"RTM45P","RTM46C","RTM46P"]
     signal_list = list(set(hill_list) - set(exculde_list))
     new_signal = list(set(signal_list) - set(pos_ticker))
 
@@ -112,7 +112,6 @@ while api.case_status() == True:
         K = int(re.findall(r'\d+', option_ticker)[0])
         sigma = iv_s[option_ticker]
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
-        print(opt_delta)
         sum_delta +=  pos[option_ticker] * 100 * opt_delta
     if sum_delta > 0:
         api.market_sell("RTM", sum_delta)
