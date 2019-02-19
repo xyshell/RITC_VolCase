@@ -108,6 +108,7 @@ while api.case_status() == True:
             flag = 'p'
         else:
             sum_delta += pos[option_ticker] * 1
+            continue
         K = int(re.findall(r'\d+', option_ticker)[0])
         sigma = iv_s[option_ticker]
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
