@@ -97,6 +97,28 @@ while api.case_status() == True:
 
 
     # hedge
+    # vega hedge
+    pos = api.position()
+    pos_ticker = list(pos[pos!=0].index)
+    sum_vega = 0
+    for option_ticker in pos_ticker:
+        if 'C' in option_ticker:
+            flag = 'c'
+        elif 'P' in option_ticker:
+            flag = 'p'
+        else:
+            continue
+        K = int(re.findall(r'\d+', option_ticker)[0])
+        sigma = iv_s[option_ticker]
+        opt_vega = vega(flag, S_last, K, t, r, sigma, q)
+        sum_vega +=  pos[option_ticker] * 100 * opt_vega
+    if sum_vega > 0:
+        api.market_sell("RTM", sum_vega)
+    elif sum_vega < 0:
+        api.market_buy("RTM", -sum_vega)
+    else:
+        pass
+
     # delta hedge
     pos = api.position()
     pos_ticker = list(pos[pos!=0].index)
@@ -119,7 +141,7 @@ while api.case_status() == True:
         api.market_buy("RTM", -sum_delta)
     else:
         pass
-    # gamma hedge
+
 
     # feedbacks
 
