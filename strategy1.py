@@ -101,9 +101,14 @@ while api.case_status() == True:
     pos = api.position()
     pos_ticker = list(pos[pos!=0].index)
     sum_delta = 0
-    for option_ticker in pos_ticker[1:]:
+    for option_ticker in pos_ticker:
+        if 'C' in option_ticker:
+            flag = 'c'
+        elif 'P' in option_ticker:
+            flag = 'p'
+        else:
+            continue
         K = int(re.findall(r'\d+', option_ticker)[0])
-        flag = 'c' if 'C' in option_ticker else 'p' 
         sigma = iv_s[option_ticker]
         sum_delta +=  pos[option_ticker] * 100 * delta(flag, S_last, K, t, r, sigma, q)
     if sum_delta > 0:
