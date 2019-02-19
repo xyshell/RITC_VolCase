@@ -72,7 +72,8 @@ while api.case_status() == True:
     
     # computation -- stats of implied vol
     hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.90)])
-    plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.80)])
+    plain_list = list(iv_s.index[
+        (iv_s <= iv_s.quantile(.80)) & (iv_s >= iv_s.quantile(.20))])
     exculde_list = ['RTM45C',"RTM45P"]
     signal_list = list(set(hill_list) - set(exculde_list))
     new_signal = list(set(signal_list) - set(pos_ticker))
@@ -111,13 +112,18 @@ while api.case_status() == True:
         K = int(re.findall(r'\d+', option_ticker)[0])
         sigma = iv_s[option_ticker]
         opt_vega = vega(flag, S_last, K, t, r, sigma, q)
-        sum_vega +=  pos[option_ticker] * 100 * opt_vega
-    if sum_vega > 0:
-        api.market_sell("RTM", sum_vega)
-    elif sum_vega < 0:
-        api.market_buy("RTM", -sum_vega)
-    else:
-        pass
+        sum_vega +=  pos[option_ticker] * opt_vega
+    # vega always > 0
+    opt_ticker = list(iv_s.index[iv_s == iv_s.median])[0]
+    if 'C' in opt_ticker:
+        flag = 'c'
+    elif 'P' in opt_ticker:
+        flag = 'p'
+    K = int(re.findall(r'\d+', opt_ticker)[0])
+    sigma = iv_s[opt_ticker]
+    heg_vega = vega(flag, S_last, K, t, r, sigma, q)
+    api.market_sell(opt_ticker, sum_vega / heg_vega)
+
 
     # delta hedge
     pos = api.position()
