@@ -71,9 +71,9 @@ while api.case_status() == True:
     iv_s = pd.Series(vol_dict)
     
     # computation -- stats of implied vol
-    hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.85)])
+    hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.90)])
     plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.70)])
-    exculde_list = ['RTM45C',"RTM45P","RTM46C","RTM46P"]
+    exculde_list = ['RTM45C',"RTM45P"]
     signal_list = list(set(hill_list) - set(exculde_list))
     new_signal = list(set(signal_list) - set(pos_ticker))
 
