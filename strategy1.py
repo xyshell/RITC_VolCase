@@ -127,17 +127,20 @@ while api.case_status() == True:
         opt_vega = vega(flag, S_last, K, t, r, sigma, q)
         sum_vega +=  pos[option_ticker] * opt_vega
 
+    opt_ticker = list(iv_s.index[
+        (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
+    if 'C' in opt_ticker:
+        flag = 'c'
+    elif 'P' in opt_ticker:
+        flag = 'p'
+    K = int(re.findall(r'\d+', opt_ticker)[0])
+    sigma = iv_s[opt_ticker]
+    heg_vega = vega(flag, S_last, K, t, r, sigma, q)
     if sum_vega > 0:
-        opt_ticker = list(iv_s.index[
-            (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
-        if 'C' in opt_ticker:
-            flag = 'c'
-        elif 'P' in opt_ticker:
-            flag = 'p'
-        K = int(re.findall(r'\d+', opt_ticker)[0])
-        sigma = iv_s[opt_ticker]
-        heg_vega = vega(flag, S_last, K, t, r, sigma, q)
         api.market_sell(opt_ticker, sum_vega / heg_vega)
+    elif sum_vega < 0:
+        api.market_buy(opt_ticker, -sum_vega / heg_vega)
+
 
 
     # delta hedge
