@@ -112,36 +112,34 @@ while api.case_status() == True:
 
     # hedge
     # vega hedge
-    pos = api.position()
-    pos_ticker = list(pos[pos!=0].index)
-    sum_vega = 0
-    for option_ticker in pos_ticker:
-        if 'C' in option_ticker:
-            flag = 'c'
-        elif 'P' in option_ticker:
-            flag = 'p'
-        else:
-            continue
-        K = int(re.findall(r'\d+', option_ticker)[0])
-        sigma = iv_s[option_ticker]
-        opt_vega = vega(flag, S_last, K, t, r, sigma, q)
-        sum_vega +=  pos[option_ticker] * opt_vega
+    # pos = api.position()
+    # pos_ticker = list(pos[pos!=0].index)
+    # sum_vega = 0
+    # for option_ticker in pos_ticker:
+    #     if 'C' in option_ticker:
+    #         flag = 'c'
+    #     elif 'P' in option_ticker:
+    #         flag = 'p'
+    #     else:
+    #         continue
+    #     K = int(re.findall(r'\d+', option_ticker)[0])
+    #     sigma = iv_s[option_ticker]
+    #     opt_vega = vega(flag, S_last, K, t, r, sigma, q)
+    #     sum_vega +=  pos[option_ticker] * opt_vega
 
-    opt_ticker = list(iv_s.index[
-        (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
-    if 'C' in opt_ticker:
-        flag = 'c'
-    elif 'P' in opt_ticker:
-        flag = 'p'
-    K = int(re.findall(r'\d+', opt_ticker)[0])
-    sigma = iv_s[opt_ticker]
-    heg_vega = vega(flag, S_last, K, t, r, sigma, q)
-    if sum_vega > 0:
-        api.market_sell(opt_ticker, sum_vega / heg_vega)
-    elif sum_vega < 0:
-        api.market_buy(opt_ticker, -sum_vega / heg_vega)
-
-
+    # opt_ticker = list(iv_s.index[
+    #     (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
+    # if 'C' in opt_ticker:
+    #     flag = 'c'
+    # elif 'P' in opt_ticker:
+    #     flag = 'p'
+    # K = int(re.findall(r'\d+', opt_ticker)[0])
+    # sigma = iv_s[opt_ticker]
+    # heg_vega = vega(flag, S_last, K, t, r, sigma, q)
+    # if sum_vega > 0:
+    #     api.market_sell(opt_ticker, sum_vega / heg_vega)
+    # elif sum_vega < 0:
+    #     api.market_buy(opt_ticker, -sum_vega / heg_vega)
 
     # delta hedge
     pos = api.position()

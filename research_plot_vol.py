@@ -7,7 +7,7 @@ import time
 
 implied_vol = pd.read_csv("implied_volatility.csv")
 for i in range(len(implied_vol)):
-    if i <= 0 :
+    if i <= 450 :
         continue
     print(i)
 
