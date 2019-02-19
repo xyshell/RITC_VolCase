@@ -72,7 +72,7 @@ while api.case_status() == True:
     
     # computation -- stats of implied vol
     hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.90)])
-    plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.70)])
+    plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.80)])
     exculde_list = ['RTM45C',"RTM45P"]
     signal_list = list(set(hill_list) - set(exculde_list))
     new_signal = list(set(signal_list) - set(pos_ticker))
@@ -119,6 +119,8 @@ while api.case_status() == True:
         api.market_buy("RTM", -sum_delta)
     else:
         pass
+    # gamma hedge
+
     # feedbacks
 
     pass
