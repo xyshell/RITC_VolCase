@@ -107,12 +107,12 @@ while api.case_status() == True:
         elif 'P' in option_ticker:
             flag = 'p'
         else:
-            continue
+            sum_delta += pos[option_ticker] * 1
         K = int(re.findall(r'\d+', option_ticker)[0])
         sigma = iv_s[option_ticker]
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
         print(opt_delta)
-        sum_delta +=  pos[option_ticker] * opt_delta
+        sum_delta +=  pos[option_ticker] * 100 * opt_delta
     if sum_delta > 0:
         api.market_sell("RTM", sum_delta)
     elif sum_delta < 0:
