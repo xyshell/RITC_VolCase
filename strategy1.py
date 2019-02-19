@@ -79,16 +79,16 @@ while api.case_status() == True:
     # short options
     if len(pos_ticker) == 0 and len(new_signal) != 0:
         for short_ticker in new_signal:
-            api.market_sell(short_ticker, 50)
-            api.market_buy("RTM", 5000)
+            api.market_sell(short_ticker, 250)
+            api.market_buy("RTM", 25000)
     elif len(pos_ticker) == 2 and len(new_signal) != 0:
         if len(new_signal) == 1:
-            api.market_sell(new_signal[0], 50)
-            api.market_buy("RTM", 5000)
+            api.market_sell(new_signal[0], 250)
+            api.market_buy("RTM", 25000)
         elif len(new_signal) == 2:
             for short_ticker in new_signal:
-                api.market_sell(short_ticker, 25)
-                api.market_buy("RTM", 2500)
+                api.market_sell(short_ticker, 250)
+                api.market_buy("RTM", 25000)
     elif len(pos_ticker) >= 3:
         pass
 
@@ -97,9 +97,9 @@ while api.case_status() == True:
         if option_ticker in plain_list:
             chg = api.close_pos(option_ticker)
             if chg > 0:
-                api.market_sell("RTM", chg)
+                api.market_sell("RTM", chg*100)
             elif chg < 0:
-                api.market_buy("RTM", -chg)
+                api.market_buy("RTM", -chg*100)
 
 
     # feedbacks
