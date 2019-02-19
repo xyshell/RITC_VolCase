@@ -5,7 +5,7 @@ import pandas as pd
 import re 
 import time 
 
-''' dealing with 0 implied vol'''
+''' dealing with hill implied vol'''
 
 # Case Params
 r = 0
@@ -30,56 +30,77 @@ while api.case_status() == True:
         else:
             now_tick = api.case_tick()[0][0]
 
-    print(now_tick) # timer
-
     # get data
     pos = api.position()
+    pos_ticker = list(pos[pos!=0].index)
     prc_bid = api.price(kind='bid')
     prc_ask = api.price(kind='ask')
     S_ask = api.price(ticker="RTM",kind='ask')
     S_bid = api.price(ticker="RTM",kind='bid')
+    ava_ticker = list(prc_bid.index)
+    call_list = [i for i in ava_ticker if 'C' in i]
+    put_list = list(reversed([i for i in ava_ticker if 'P' in i]))
 
+    # log
+    print(now_tick) 
+
+    # computation
+    vol_dict = {}
     t = (600 - now_tick)/ 30/ 252 
-
-    if (pos == 0).all():
-        # computation
-        vol_dict = {}
-        for option_ticker in prc_ask.index[1:]:
-            K = int(re.findall(r'\d+', option_ticker)[0])
-            flag = option_ticker[-1].lower()
-            try:
-                iv = implied_volatility(prc_ask[option_ticker], S_bid, K, t, r, flag)
-            except Exception as e:
-                iv = 0
-            vol_dict[option_ticker] = iv 
-        iv_s = pd.Series(vol_dict)
-    else:
-                # computation
-        vol_dict = {}
-        for option_ticker in prc_ask.index[1:]:
-            K = int(re.findall(r'\d+', option_ticker)[0])
-            flag = option_ticker[-1].lower()
-            try:
-                iv = implied_volatility(prc_bid[option_ticker], S_ask, K, t, r, flag)
-            except Exception as e:
-                iv = 0
-            vol_dict[option_ticker] = iv 
-        iv_s = pd.Series(vol_dict)
+    # implied vol
+    for call in call_list:
+        K = int(re.findall(r'\d+', call)[0])
+        flag = 'c'
+        try:
+            iv = implied_volatility(prc_ask[call], S_bid, K, t, r, flag)
+        except Exception as e:
+            print(e)
+            iv = 0
+        vol_dict[call] = iv
+    for put in put_list:
+        K = int(re.findall(r'\d+', put)[0])
+        flag = 'p'
+        try:
+            iv = implied_volatility(prc_ask[put], S_ask, K, t, r, flag)
+        except Exception as e:
+            print(e)
+            iv = 0
+        vol_dict[put] = iv
+    iv_s = pd.Series(vol_dict)
+    
+    # stats of implied vol
+    hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.85)])
+    plain_list = list(iv_s.index[iv_s <= iv_s.quantile(.70)])
+    exculde_list = ['RTM45C',"RTM45P"]
+    signal_list = list(set(hill_list) - set(exculde_list))
+    new_signal = list(set(signal_list) - set(pos_ticker))
 
     # signals and execution
-    if len(iv_s[iv_s == 0]) == 0 and (pos == 0).all():
-        continue 
-    elif len(iv_s[iv_s == 0]) != 0 and (pos == 0).all():
-        buy_ticker = list(iv_s[iv_s == 0].index)[0]
-        api.market_buy(buy_ticker, 100)
-        api.market_sell("RTM", 10000)
-    elif (pos != 0).any():
-        hold_option = pos[1:][pos != 0].index[0]
-        if iv_s[hold_option] != 0:
-            api.market_buy("RTM", 10000)
-            api.market_sell(hold_option, 100)
-        else:
-            continue
+    # short options
+    if len(pos_ticker) == 0 and len(new_signal) != 0:
+        for short_ticker in new_signal:
+            api.market_sell(short_ticker, 50)
+            api.market_buy("RTM", 5000)
+    elif len(pos_ticker) == 2 and len(new_signal) != 0:
+        if len(new_signal) == 1:
+            api.market_sell(new_signal[0], 50)
+            api.market_buy("RTM", 5000)
+        elif len(new_signal) == 2:
+            for short_ticker in new_signal:
+                api.market_sell(short_ticker, 25)
+                api.market_buy("RTM", 2500)
+    elif len(pos_ticker) >= 3:
+        pass
+
+    # close positions
+    for option_ticker in pos_ticker[1:]:
+        if option_ticker in plain_list:
+            chg = api.close_pos(option_ticker)
+            if chg > 0:
+                api.market_sell("RTM", chg)
+            elif chg < 0:
+                api.market_buy("RTM", -chg)
+
 
     # feedbacks
 

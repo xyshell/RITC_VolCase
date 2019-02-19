@@ -2,11 +2,11 @@ import pandas as pd
 import re
 from py_vollib.black_scholes.implied_volatility import implied_volatility
 
-hist_data = pd.read_csv('hist_data3.csv')
+hist_data = pd.read_csv('hist_data.csv')
 hist_data = hist_data.sort_values(by='tick').set_index('tick')
 ava_ticker = list(hist_data.columns)
 call_list = [ticker for ticker in ava_ticker if 'C' in ticker]
-put_list = [ticker for ticker in ava_ticker if 'P' in ticker]
+put_list = list(reversed([ticker for ticker in ava_ticker if 'P' in ticker]))
 # price, S, K, t, r, flag
 
 iv_df = pd.DataFrame(columns=call_list+put_list)
@@ -21,7 +21,7 @@ for i in range(600):
         K = int(re.findall(r'\d+', call)[0])
         flag = 'c'
         try:
-            iv = implied_volatility(prc, S, K, t, r, flag)
+            iv = implied_volatility(prc+0.02, S-0.02, K, t, r, flag)
         except Exception as e:
             print(e)
             iv = 0
@@ -33,7 +33,7 @@ for i in range(600):
         K = int(re.findall(r'\d+', put)[0])
         flag = 'p'
         try:
-            iv = implied_volatility(prc, S, K, t, r, flag)
+            iv = implied_volatility(prc+0.02, S+0.02, K, t, r, flag)
         except Exception as e:
             print(e)
             iv = 0
@@ -41,4 +41,4 @@ for i in range(600):
 
     iv_df = iv_df.append(vol_dict, ignore_index=True)
     
-iv_df.to_csv('implied_volatility3.csv')
+iv_df.to_csv('implied_volatility.csv')

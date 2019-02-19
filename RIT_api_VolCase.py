@@ -27,5 +27,18 @@ class VolCaseClient(RitClient):
             return self.order()
         else:
             return self.order()[self.order()['ticker']==ticker]
+
+    def close_pos(self, ticker):
+        '''close positions using market order (by ticker) '''
+        now_pos = self.position(ticker)
+        chg = 0 - now_pos
+        if chg > 0:
+            self.market_buy(ticker, chg)
+        elif chg < 0:
+            self.market_sell(ticker, -chg)
+        else:
+            pass
+        return chg
+
         
     
