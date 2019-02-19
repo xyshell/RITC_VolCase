@@ -75,7 +75,7 @@ while api.case_status() == True:
     valley_list = list(iv_s.index[iv_s + 0.1 <= iv_s.quantile(.05)])
     plain_list = list(iv_s.index[
         (iv_s <= iv_s.quantile(.80)) & (iv_s >= iv_s.quantile(.20))])
-    exculde_list = ['RTM45C',"RTM45P"]
+    exculde_list = ['RTM45C',"RTM45P","RTM54P"]
     
     hill_signal = list(set(hill_list) - set(exculde_list))
     if "RTM46C" in hill_signal and iv_s["RTM46C"] < iv_s.max():
@@ -91,18 +91,18 @@ while api.case_status() == True:
     # short hills
     if len(pos_ticker) == 0 and len(new_hill) != 0:
         for short_ticker in new_hill:
-            api.market_sell(short_ticker, 50)
+            api.market_sell(short_ticker, 500)
     elif len(pos_ticker) == 2 and len(new_hill) != 0:
         if len(new_hill) == 1:
-            api.market_sell(new_hill[0], 50)
+            api.market_sell(new_hill[0], 500)
         elif len(new_hill) == 2:
             for short_ticker in new_hill:
-                api.market_sell(short_ticker, 50)
+                api.market_sell(short_ticker, 500)
     elif len(pos_ticker) >= 3:
         pass
     # long valleys
     if len(new_valley) != 0:
-        api.market_buy(valley_signal[0], 50)
+        api.market_buy(valley_signal[0], 500)
 
     # close positions
     for option_ticker in pos_ticker[1:]:
