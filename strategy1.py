@@ -6,7 +6,7 @@ import pandas as pd
 import re 
 import time 
 
-''' dealing with hill implied vol'''
+''' dealing with hill & valley implied vol'''
 
 # Case Params
 r = 0
@@ -72,25 +72,32 @@ while api.case_status() == True:
     
     # computation -- stats of implied vol
     hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.90)])
+    valley_list = list(iv_s.index[iv_s == iv_s.min()])
     plain_list = list(iv_s.index[
         (iv_s <= iv_s.quantile(.80)) & (iv_s >= iv_s.quantile(.20))])
     exculde_list = ['RTM45C',"RTM45P"]
-    signal_list = list(set(hill_list) - set(exculde_list))
-    new_signal = list(set(signal_list) - set(pos_ticker))
+    hill_signal = list(set(hill_list) - set(exculde_list))
+    valley_signal = list(set(hill_list) - set(exculde_list))
+    new_hill = list(set(hill_signal) - set(pos_ticker))
+    new_valley = list(set(valley_signal) - set(pos_ticker))
 
     # signals and execution
-    # short options
-    if len(pos_ticker) == 0 and len(new_signal) != 0:
-        for short_ticker in new_signal:
+    # short hills
+    if len(pos_ticker) == 0 and len(new_hill) != 0:
+        for short_ticker in new_hill:
             api.market_sell(short_ticker, 50)
-    elif len(pos_ticker) == 2 and len(new_signal) != 0:
-        if len(new_signal) == 1:
-            api.market_sell(new_signal[0], 50)
-        elif len(new_signal) == 2:
-            for short_ticker in new_signal:
+    elif len(pos_ticker) == 2 and len(new_hill) != 0:
+        if len(new_hill) == 1:
+            api.market_sell(new_hill[0], 50)
+        elif len(new_hill) == 2:
+            for short_ticker in new_hill:
                 api.market_sell(short_ticker, 50)
     elif len(pos_ticker) >= 3:
         pass
+    # long valleys
+    if len(new_valley) != 0:
+        api.market_buy(valley_signal[0], 50)
+
     # close positions
     for option_ticker in pos_ticker[1:]:
         if option_ticker in plain_list:
@@ -113,16 +120,17 @@ while api.case_status() == True:
         sigma = iv_s[option_ticker]
         opt_vega = vega(flag, S_last, K, t, r, sigma, q)
         sum_vega +=  pos[option_ticker] * opt_vega
-    # vega always > 0
-    opt_ticker = list(iv_s.index[iv_s == iv_s.median])[0]
-    if 'C' in opt_ticker:
-        flag = 'c'
-    elif 'P' in opt_ticker:
-        flag = 'p'
-    K = int(re.findall(r'\d+', opt_ticker)[0])
-    sigma = iv_s[opt_ticker]
-    heg_vega = vega(flag, S_last, K, t, r, sigma, q)
-    api.market_sell(opt_ticker, sum_vega / heg_vega)
+
+    if sum_vega > 0:
+        opt_ticker = list(iv_s.index[iv_s == iv_s.median])[0]
+        if 'C' in opt_ticker:
+            flag = 'c'
+        elif 'P' in opt_ticker:
+            flag = 'p'
+        K = int(re.findall(r'\d+', opt_ticker)[0])
+        sigma = iv_s[opt_ticker]
+        heg_vega = vega(flag, S_last, K, t, r, sigma, q)
+        api.market_sell(opt_ticker, sum_vega / heg_vega)
 
 
     # delta hedge
