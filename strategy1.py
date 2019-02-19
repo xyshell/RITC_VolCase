@@ -71,13 +71,19 @@ while api.case_status() == True:
     iv_s = pd.Series(vol_dict)
     
     # computation -- stats of implied vol
-    hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.90)])
-    valley_list = list(iv_s.index[iv_s == iv_s.min()])
+    hill_list = list(iv_s.index[iv_s >= iv_s.quantile(.85)])
+    valley_list = list(iv_s.index[iv_s + 0.1 <= iv_s.quantile(.05)])
     plain_list = list(iv_s.index[
         (iv_s <= iv_s.quantile(.80)) & (iv_s >= iv_s.quantile(.20))])
     exculde_list = ['RTM45C',"RTM45P"]
+    
     hill_signal = list(set(hill_list) - set(exculde_list))
-    valley_signal = list(set(hill_list) - set(exculde_list))
+    if "RTM46C" in hill_signal and iv_s["RTM46C"] < iv_s.max():
+        hill_signal = list(set(hill_signal) - set(["RTM46C"]))
+    if "RTM46P" in hill_signal and iv_s["RTM46P"] < iv_s.max():
+        hill_signal = list(set(hill_signal) - set(["RTM46P"]))
+
+    valley_signal = list(set(valley_list) - set(exculde_list))
     new_hill = list(set(hill_signal) - set(pos_ticker))
     new_valley = list(set(valley_signal) - set(pos_ticker))
 
@@ -122,7 +128,8 @@ while api.case_status() == True:
         sum_vega +=  pos[option_ticker] * opt_vega
 
     if sum_vega > 0:
-        opt_ticker = list(iv_s.index[iv_s == iv_s.median])[0]
+        opt_ticker = list(iv_s.index[
+            (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
         if 'C' in opt_ticker:
             flag = 'c'
         elif 'P' in opt_ticker:
