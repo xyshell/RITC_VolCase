@@ -39,6 +39,14 @@ class VolCaseClient(RitClient):
         else:
             pass
         return chg
-
+    
+    def news(self, kind, is_last=False):
+        '''get news by headline'''
+        all_news = self.news_info()
+        kind_news = all_news[kind in all_news["Headline"]]
+        if is_last == True:
+            return kind_news.head(1)
+        else:
+            return kind_news
         
     
