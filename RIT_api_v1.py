@@ -8,10 +8,19 @@ class RitClient():
 
         self.url = url
         self.apikey = apikey
-
+    
 
     def get_request(self, command, params={}, table=False):
-        resp = requests.get(self.url + command, headers=self.apikey, params=params)
+        
+        retry = 10
+        while retry > 0:
+            try:
+                resp = requests.get(self.url + command, headers=self.apikey, params=params)
+                break
+            except:
+                time.sleep(0.05)
+                retry -= 1
+
         if resp.status_code == 200:
             resp = resp.json()
             if table:
@@ -26,7 +35,16 @@ class RitClient():
             return resp
     
     def post_request(self, command, params={}, table=False):
-        resp = requests.post(self.url + command, headers=self.apikey, params=params)
+        
+        retry = 10
+        while retry > 0:
+            try:
+                resp = requests.post(self.url + command, headers=self.apikey, params=params)
+                break
+            except:
+                time.sleep(0.05)
+                retry -= 1
+
         if resp.status_code == 200:
             resp = resp.json()
             if table:
@@ -41,7 +59,14 @@ class RitClient():
             return resp
     
     def delete_request(self, command, params={}, table=False):
-        resp = requests.delete(self.url + command, headers=self.apikey, params=params)
+        retry = 10
+        while retry > 0:
+            try:
+                resp = requests.delete(self.url + command, headers=self.apikey, params=params)
+                break
+            except:
+                time.sleep(0.05)
+                retry -= 1
         if resp.status_code == 200:
             resp = resp.json()
             if table:
