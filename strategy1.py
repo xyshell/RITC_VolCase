@@ -115,51 +115,51 @@ while api.case_status() == True:
             print(e)
             iv_mm = 0           
         putvol_dict_u[put] = iv_uu
-        putvol_dict_d[call] = iv_dd
-        putvol_dict_m[call] = iv_mm
+        putvol_dict_d[put] = iv_dd
+        putvol_dict_m[put] = iv_mm
     
-    calliv_u = pd.Series(iv_u)
-    calliv_d = pd.Series(iv_d)
-    calliv_m = pd.Series(iv_m)
-    putiv_u = pd.Series(iv_uu)
-    putiv_d = pd.Series(iv_dd)
-    putiv_m = pd.Series(iv_mm)
+    calliv_u = pd.Series(callvol_dict_u)
+    calliv_d = pd.Series(callvol_dict_d)
+    calliv_m = pd.Series(callvol_dict_m)
+    putiv_u = pd.Series(putvol_dict_u)
+    putiv_d = pd.Series(putvol_dict_d)
+    putiv_m = pd.Series(putvol_dict_m)
     
 
     # signals and execution
     # short hills & long valley
-    hill_call = list(calliv_m[calliv_m > putiv_u].index)
-    valley_call = list(calliv_m[calliv_m < putiv_d].index)
-    hill_put = list(putiv_m[putiv_m > calliv_u].index)
-    valley_put = list(putiv_m[putiv_m < calliv_d].index)
+    hill_call = list(calliv_m[calliv_d.values > putiv_u.values].index)
+    valley_call = list(calliv_m[calliv_u.values < putiv_d.values].index)
+    hill_put = list(putiv_m[putiv_d.values > calliv_u.values].index)
+    valley_put = list(putiv_m[putiv_u.values < calliv_d.values].index)
 
     # open position
     if len(pos_ticker) == 0:
         if len(hill_call) != 0:
             for call in hill_call:
-                api.market_sell(call, 500)
-                api.market_buy(c2p_dict[call], 500)
+                api.market_sell(call, 50)
+                api.market_buy(c2p_dict[call], 50)
         if len(valley_call) != 0:
             for call in valley_call:
-                api.market_buy(call, 500)
-                api.market_sell(c2p_dict[call], 500)
+                api.market_buy(call, 50)
+                api.market_sell(c2p_dict[call], 50)
         if len(hill_put) != 0:
             for put in hill_put:
-                api.market_sell(put, 500)
-                api.market_buy(p2c_dict[put], 500)                
+                api.market_sell(put, 50)
+                api.market_buy(p2c_dict[put], 50)                
         if len(valley_put) != 0:
             for put in valley_put:
-                api.market_buy(put, 500)
-                api.market_sell(p2c_dict[put], 500)                   
+                api.market_buy(put, 50)
+                api.market_sell(p2c_dict[put], 50)                   
     # close position
     if len(pos_ticker) != 0:
         for opt in pos_ticker:
             if opt == "RTM":
                 continue
-            if opt in call_list and calliv_m[opt] < putiv_u and calliv_m[opt] > putiv_d:
+            if opt in call_list and calliv_m[opt] < putiv_u[c2p_dict[opt]] and calliv_m[opt] > putiv_d[c2p_dict[opt]]:
                 api.close_pos(opt)
                 api.close_pos(c2p_dict[opt])
-            if opt in put_list and putiv_m[opt] < calliv_u and putiv_m[opt] > calliv_d:
+            if opt in put_list and putiv_m[opt] < calliv_u[p2c_dict[opt]] and putiv_m[opt] > calliv_d[p2c_dict[opt]]:
                 api.close_pos(opt)
                 api.close_pos(p2c_dict[opt])
 
@@ -184,11 +184,14 @@ while api.case_status() == True:
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
         sum_delta +=  pos[option_ticker] * 100 * opt_delta
     if sum_delta > 0:
+        if sum_delta > 10000:
+            api.market_sell("RTM", 10000)
         api.market_sell("RTM", sum_delta)
     elif sum_delta < 0:
+        if sum_delta < -10000:
+            api.market_buy("RTM", 10000)
         api.market_buy("RTM", -sum_delta)
-    else:
-        pass
+
 
 
     # feedbacks
