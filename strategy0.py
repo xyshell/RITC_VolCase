@@ -1,5 +1,6 @@
 from RIT_api_VolCase import VolCaseClient
 from apiUlt import url, apikey
+from stratUlt import *
 from py_vollib.black_scholes.implied_volatility import implied_volatility
 from py_vollib.black_scholes_merton.greeks.analytical import delta, vega
 import pandas as pd
@@ -40,7 +41,6 @@ while api.case_status() == True:
     S_ask = api.price(ticker="RTM",kind='ask')
     S_bid = api.price(ticker="RTM",kind='bid')
     S_last = api.price(ticker="RTM",kind='last')
-    ava_ticker = list(prc_bid.index)
     call_list = [i for i in ava_ticker if 'C' in i]
     put_list = list(reversed([i for i in ava_ticker if 'P' in i]))
 

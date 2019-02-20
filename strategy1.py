@@ -1,5 +1,6 @@
 from RIT_api_VolCase import VolCaseClient
 from apiUlt import url, apikey
+from stratUlt import *
 from py_vollib.black_scholes.implied_volatility import implied_volatility
 from py_vollib.black_scholes_merton.greeks.analytical import delta, vega
 import pandas as pd
@@ -7,23 +8,6 @@ import re
 import time 
 
 ''' dealing with hill & valley implied vol'''
-
-# Case Params
-r = 0
-q = 0
-
-c2p_dict = {
-    'RTM45C' : 'RTM45P', 'RTM46C' : 'RTM46P', 'RTM47C' : 'RTM47P',
-    'RTM48C' : 'RTM48P', 'RTM49C' : 'RTM49P', 'RTM50C' : 'RTM50P',
-    'RTM51C' : 'RTM51P', 'RTM52C' : 'RTM52P', 'RTM53C' : 'RTM53P',
-    'RTM54C' : 'RTM54P',
-}
-p2c_dict = {
-    'RTM45P' : 'RTM45C', 'RTM46P' : 'RTM46C', 'RTM47P' : 'RTM47C',
-    'RTM48P' : 'RTM48C', 'RTM49P' : 'RTM49C', 'RTM50P' : 'RTM50C',
-    'RTM51P' : 'RTM51C', 'RTM52P' : 'RTM52C', 'RTM53P' : 'RTM53C',
-    'RTM54P' : 'RTM54C',
-}
 
 # Waiting for start
 api = VolCaseClient(url, apikey)
@@ -34,7 +18,7 @@ while api.case_status() == False:
 # case begins
 i = 0
 ann_vol = 0.2
-delta_limit = api.news("Delta")
+# delta_limit = api.news("Delta")
 while api.case_status() == True:
 
     # skip same tick
@@ -56,13 +40,12 @@ while api.case_status() == True:
     S_ask = api.price(ticker="RTM",kind='ask')
     S_bid = api.price(ticker="RTM",kind='bid')
     S_last = api.price(ticker="RTM",kind='last')
-    ava_ticker = list(prc_bid.index)
     call_list = [i for i in ava_ticker if 'C' in i]
     put_list = [i for i in ava_ticker if 'P' in i]
 
-    if now_tick == [150, 300, 450]:
-        vol_news = api.news("Announcement",True)["Body"]
-        ann_vol = int(re.findall(r"\d+", vol_news)[0])
+    # if now_tick == [150, 300, 450]:
+    #     vol_news = api.news("Announcement",True)["Body"]
+    #     ann_vol = int(re.findall(r"\d+", vol_news)[0])
     t = (600 - now_tick)/ 30/ 252
 
     # log
