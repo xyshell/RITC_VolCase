@@ -62,11 +62,11 @@ while api.case_status() == True:
         K = int(re.findall(r'\d+', call)[0])
         flag = 'c'
         try:
-            iv_u = implied_volatility(prc_last[call]+0.02, S_last-0.02, K, t, r, flag)
+            iv_u = implied_volatility(prc_last[call]+0.04, S_last-0.04, K, t, r, flag)
         except Exception:
             iv_u = 0
         try:
-            iv_d = implied_volatility(prc_last[call]-0.02, S_last+0.02, K, t, r, flag)
+            iv_d = implied_volatility(prc_last[call]-0.04, S_last+0.04, K, t, r, flag)
         except Exception:
             iv_d = 0
         try:
@@ -80,11 +80,11 @@ while api.case_status() == True:
         K = int(re.findall(r'\d+', put)[0])
         flag = 'p'
         try:
-            iv_uu = implied_volatility(prc_last[put]+0.02, S_last+0.02, K, t, r, flag)
+            iv_uu = implied_volatility(prc_last[put]+0.04, S_last+0.04, K, t, r, flag)
         except Exception:
             iv_uu = 0
         try:
-            iv_dd = implied_volatility(prc_last[put]-0.02, S_last-0.02, K, t, r, flag)
+            iv_dd = implied_volatility(prc_last[put]-0.04, S_last-0.04, K, t, r, flag)
         except Exception:
             iv_dd = 0
         try:
@@ -115,10 +115,10 @@ while api.case_status() == True:
         if len(hill_call) != 0:
             for call in hill_call:
                 print(call, calliv_m[call],"vs",putiv_m[c2p_dict[call]])
-                api.market_sell(call, 50)
-                print(call, "sell at", prc_bid[call])
-                api.market_buy(c2p_dict[call], 50)
-                print(c2p_dict[call], "buy at", prc_ask[c2p_dict[call]])
+                api.market_buy(call, 50)
+                print(call, "buy at", prc_bid[call])
+                api.market_sell(c2p_dict[call], 50)
+                print(c2p_dict[call], "sell at", prc_ask[c2p_dict[call]])
 
         if len(valley_call) != 0:
             for call in valley_call:
@@ -154,6 +154,8 @@ while api.case_status() == True:
                 print(c2p_dict[opt], "close at", prc_last[c2p_dict[opt]])
                 api.close_pos(opt)
                 api.close_pos(c2p_dict[opt])
+                print(opt, calliv_m[opt], "vs", putiv_m[c2p_dict[opt]])
+                pass
             # if opt in put_list and putiv_m[opt] < calliv_u[p2c_dict[opt]] and putiv_m[opt] > calliv_d[p2c_dict[opt]]:
             #     print(opt, "close at", prc_last[opt])
             #     print(p2c_dict[opt], "close at", prc_last[p2c_dict[opt]])
