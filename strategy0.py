@@ -8,6 +8,7 @@ import re
 import time 
 
 # Case Params
+alpha = 30
 rng_d = 0.195
 rng_u = 0.205
 
@@ -43,9 +44,11 @@ while api.case_status() == True:
     call_list = [i for i in ava_ticker if 'C' in i]
     put_list = [i for i in ava_ticker if 'P' in i]
 
-    if now_tick in vol_time:
+    try:
         vol_news = api.news_kind("Announcement",True)["body"]
         real_vol = int(re.findall(r"\d+", vol_news.values[0])[0]) / 100
+    except:
+        real_vol = 0.2
     
     # define safe zone
     if now_tick <= 450:
@@ -58,8 +61,7 @@ while api.case_status() == True:
         range_news = api.news_kind("News",True)["body"]
         rng_d = int(re.findall(r"\d+", range_news.values[0])[0]) / 100
         rng_u = int(re.findall(r"\d+", range_news.values[0])[1]) / 100
-
-
+    
     # log time
     print(now_tick) 
     t = (600 - now_tick)/ 30/ 252 
@@ -89,53 +91,22 @@ while api.case_status() == True:
     for i in iv_s.index:
         if str(int(round(S_last))) in i:
             at_money_opt.append(i)
-            print("real_vol", real_vol, i, "iv", iv_s[i])
-    
     now_iv = iv_s[at_money_opt].mean()
+    print("rv =", real_vol,  "iv =", round(now_iv,2), "safe range", round(rng_d,2), "~", round(rng_u,2))
     if now_iv > rng_u:
         for opt in at_money_opt:
-            api.market_sell(opt, int((now_iv - rng_u)/0.1*5+1))
-        print("sell straddle at", prc_bid[at_money_opt].sum(), "by", int((now_iv - rng_u)/0.1*5+1))
+            api.market_sell(opt, int((now_iv - rng_u)/0.1*alpha+1))
+        print("sell straddle at", round(prc_bid[at_money_opt].sum(),2), "by", int((now_iv - rng_u)/0.1*alpha+1))
     elif now_iv < rng_d:
         for opt in at_money_opt:
-            api.market_buy(opt, int((rng_d - now_iv)/0.1*5+1))
-        print("buy straddle at", prc_ask[at_money_opt].sum(), "by", int((rng_d - now_iv)/0.1*5+1))
+            api.market_buy(opt, int((rng_d - now_iv)/0.1*alpha+1))
+        print("buy straddle at", round(prc_ask[at_money_opt].sum(),2), "by", int((rng_d - now_iv)/0.1*alpha+1))
     else:
         for ticker in pos_ticker:
             amount = api.close_pos(ticker)
             print("close", ticker, "by", amount)
 
     # hedge
-    # vega hedge
-    # pos = api.position()
-    # pos_ticker = list(pos[pos!=0].index)
-    # sum_vega = 0
-    # for option_ticker in pos_ticker:
-    #     if 'C' in option_ticker:
-    #         flag = 'c'
-    #     elif 'P' in option_ticker:
-    #         flag = 'p'
-    #     else:
-    #         continue
-    #     K = int(re.findall(r'\d+', option_ticker)[0])
-    #     sigma = iv_s[option_ticker]
-    #     opt_vega = vega(flag, S_last, K, t, r, sigma, q)
-    #     sum_vega +=  pos[option_ticker] * opt_vega
-
-    # opt_ticker = list(iv_s.index[
-    #     (iv_s >= iv_s.quantile(.45)) & (iv_s <= iv_s.quantile(.55))])[0]
-    # if 'C' in opt_ticker:
-    #     flag = 'c'
-    # elif 'P' in opt_ticker:
-    #     flag = 'p'
-    # K = int(re.findall(r'\d+', opt_ticker)[0])
-    # sigma = iv_s[opt_ticker]
-    # heg_vega = vega(flag, S_last, K, t, r, sigma, q)
-    # if sum_vega > 0:
-    #     api.market_sell(opt_ticker, sum_vega / heg_vega)
-    # elif sum_vega < 0:
-    #     api.market_buy(opt_ticker, -sum_vega / heg_vega)
-
     # delta hedge
     pos = api.position()
     pos_ticker = list(pos[pos!=0].index)
@@ -149,7 +120,10 @@ while api.case_status() == True:
             sum_delta += pos[option_ticker] * 1
             continue
         K = int(re.findall(r'\d+', option_ticker)[0])
-        sigma = iv_s[option_ticker]
+        if option_ticker in call_list:
+            sigma = iv_s[option_ticker]
+        elif option_ticker in put_list:
+            sigma = iv_s[option_ticker]
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
         sum_delta +=  pos[option_ticker] * 100 * opt_delta
     if sum_delta > 0:
@@ -160,9 +134,6 @@ while api.case_status() == True:
         if sum_delta < -10000:
             api.market_buy("RTM", 10000)
         api.market_buy("RTM", -sum_delta)
-    else:
-        pass
-
 
     # feedbacks
 

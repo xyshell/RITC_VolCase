@@ -4,7 +4,7 @@ r = 0
 q = 0
 real_vol = 0.2
 vol_time = np.concatenate(
-    (np.arange(149,151), np.arange(299,301), np.arange(449,451)))
+    (np.arange(150,151), np.arange(300,301), np.arange(450, 451)))
 rng_time = np.concatenate(
     (np.arange(75,150), np.arange(225, 300), np.arange(375, 450)))
 
