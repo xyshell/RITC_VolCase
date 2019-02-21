@@ -33,17 +33,21 @@ class VolCaseClient(RitClient):
         now_pos = self.position(ticker)
         chg = 0 - now_pos
         if chg > 0:
+            if chg > 100 and ticker!="RTM":
+                self.market_buy(ticker, 100)
             self.market_buy(ticker, chg)
         elif chg < 0:
+            if chg < -100 and ticker!="RTM":
+                self.market_sell(ticker, 100)
             self.market_sell(ticker, -chg)
         else:
             pass
         return chg
     
-    def news(self, kind, is_last=False):
+    def news_kind(self, kind, is_last=False):
         '''get news by headline'''
         all_news = self.news_info()
-        kind_news = all_news[kind in all_news["Headline"]]
+        kind_news = all_news[all_news["headline"].apply(lambda x: kind in x )]
         if is_last == True:
             return kind_news.head(1)
         else:

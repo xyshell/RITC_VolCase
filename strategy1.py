@@ -164,32 +164,32 @@ while api.case_status() == True:
 
     # hedge
     # delta hedge
-    pos = api.position()
-    pos_ticker = list(pos[pos!=0].index)
-    sum_delta = 0
-    for option_ticker in pos_ticker:
-        if 'C' in option_ticker:
-            flag = 'c'
-        elif 'P' in option_ticker:
-            flag = 'p'
-        else:
-            sum_delta += pos[option_ticker] * 1
-            continue
-        K = int(re.findall(r'\d+', option_ticker)[0])
-        if option_ticker in call_list:
-            sigma = calliv_m[option_ticker]
-        elif option_ticker in put_list:
-            sigma = putiv_m[option_ticker]
-        opt_delta = delta(flag, S_last, K, t, r, sigma, q)
-        sum_delta +=  pos[option_ticker] * 100 * opt_delta
-    if sum_delta > 0:
-        if sum_delta > 10000:
-            api.market_sell("RTM", 10000)
-        api.market_sell("RTM", sum_delta)
-    elif sum_delta < 0:
-        if sum_delta < -10000:
-            api.market_buy("RTM", 10000)
-        api.market_buy("RTM", -sum_delta)
+    # pos = api.position()
+    # pos_ticker = list(pos[pos!=0].index)
+    # sum_delta = 0
+    # for option_ticker in pos_ticker:
+    #     if 'C' in option_ticker:
+    #         flag = 'c'
+    #     elif 'P' in option_ticker:
+    #         flag = 'p'
+    #     else:
+    #         sum_delta += pos[option_ticker] * 1
+    #         continue
+    #     K = int(re.findall(r'\d+', option_ticker)[0])
+    #     if option_ticker in call_list:
+    #         sigma = calliv_m[option_ticker]
+    #     elif option_ticker in put_list:
+    #         sigma = putiv_m[option_ticker]
+    #     opt_delta = delta(flag, S_last, K, t, r, sigma, q)
+    #     sum_delta +=  pos[option_ticker] * 100 * opt_delta
+    # if sum_delta > 0:
+    #     if sum_delta > 10000:
+    #         api.market_sell("RTM", 10000)
+    #     api.market_sell("RTM", sum_delta)
+    # elif sum_delta < 0:
+    #     if sum_delta < -10000:
+    #         api.market_buy("RTM", 10000)
+    #     api.market_buy("RTM", -sum_delta)
 
 
 
