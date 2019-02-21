@@ -32,16 +32,29 @@ class VolCaseClient(RitClient):
         '''close positions using market order (by ticker) '''
         now_pos = self.position(ticker)
         chg = 0 - now_pos
+        if ticker == "RTM":
+            while abs(chg) > 10000:
+                if chg > 0:
+                    self.market_buy(ticker, 10000)
+                    chg -= 10000
+                elif chg < 0:
+                    self.market_sell(ticker, 10000)
+                    chg += 10000
+        else:
+            while abs(chg) > 100:
+                if chg > 0:
+                    self.market_buy(ticker, 100)
+                    chg -= 100
+                elif chg < 0:
+                    self.market_sell(ticker, 100)
+                    chg += 100         
         if chg > 0:
-            if chg > 100 and ticker!="RTM":
-                self.market_buy(ticker, 100)
             self.market_buy(ticker, chg)
         elif chg < 0:
-            if chg < -100 and ticker!="RTM":
-                self.market_sell(ticker, 100)
             self.market_sell(ticker, -chg)
         else:
             pass
+
         return chg
     
     def news_kind(self, kind, is_last=False):
