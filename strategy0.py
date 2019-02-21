@@ -153,8 +153,12 @@ while api.case_status() == True:
         opt_delta = delta(flag, S_last, K, t, r, sigma, q)
         sum_delta +=  pos[option_ticker] * 100 * opt_delta
     if sum_delta > 0:
+        if sum_delta > 10000:
+            api.market_sell("RTM", 10000)
         api.market_sell("RTM", sum_delta)
     elif sum_delta < 0:
+        if sum_delta < -10000:
+            api.market_buy("RTM", 10000)
         api.market_buy("RTM", -sum_delta)
     else:
         pass
