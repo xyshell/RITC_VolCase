@@ -17,7 +17,7 @@ rng_time = np.concatenate(
 
 # Strat Params
 alpha = 30 # order intensity
-safe_rng = 0.1 # safe range width
+safe_rng = 0.01 # safe range width
 rng_d = real_vol - safe_rng # downside safe zone
 rng_u = real_vol + safe_rng # upside safe zone
 
