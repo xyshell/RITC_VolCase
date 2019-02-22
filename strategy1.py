@@ -16,7 +16,7 @@ rng_time = np.concatenate(
     (np.arange(75,150), np.arange(225, 300), np.arange(375, 450))) # efficient predicting zone
 
 # Strat Params
-alpha = 30 # order intensity
+alpha = 20 # order intensity
 safe_rng = 0.01 # safe range width
 rng_d = real_vol - safe_rng # downside safe zone
 rng_u = real_vol + safe_rng # upside safe zone
@@ -62,8 +62,8 @@ while api.case_status() == True:
         rng_d = real_vol - 0.01
         rng_u = real_vol + 0.01
     else:
-        rng_d = real_vol - 0.1
-        rng_u = real_vol + 0.1
+        rng_d = real_vol - 0.15
+        rng_u = real_vol + 0.15
     if now_tick in rng_time:
         range_news = api.news_kind("News",is_last=True)["body"]
         rng_d = int(re.findall(r"\d+", range_news.values[0])[0]) / 100
@@ -112,7 +112,7 @@ while api.case_status() == True:
         for ticker in pos_ticker:
             amount = api.close_pos(ticker)
             print("close", ticker, "by", amount)
-
+        continue
     # hedge
     # delta hedge
     pos = api.position()

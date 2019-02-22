@@ -33,7 +33,7 @@ class VolCaseClient(RitClient):
         now_pos = self.position(ticker)
         chg = 0 - now_pos
         if ticker == "RTM":
-            while abs(chg) > 10000:
+            while (abs(chg) > 10000):
                 if chg > 0:
                     self.market_buy(ticker, 10000)
                     chg -= 10000
@@ -41,7 +41,7 @@ class VolCaseClient(RitClient):
                     self.market_sell(ticker, 10000)
                     chg += 10000
         else:
-            while abs(chg) > 100:
+            while (abs(chg) > 100):
                 if chg > 0:
                     self.market_buy(ticker, 100)
                     chg -= 100
