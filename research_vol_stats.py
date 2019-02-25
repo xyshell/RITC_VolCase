@@ -5,7 +5,7 @@ matplotlib.use("TKAgg")
 import matplotlib.pyplot as plt
 import time
 
-implied_vol = pd.read_csv("implied_volatility3.csv")
+implied_vol = pd.read_csv("data/implied_volatility3.csv")
 for i in range(len(implied_vol)):
     if i <= 0 :
         continue
